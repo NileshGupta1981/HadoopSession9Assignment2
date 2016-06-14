@@ -1,0 +1,23 @@
+studentwitheader = load 'Student.txt' using PigStorage(',') AS (name:chararray,col_undertaken:chararray,dob:chararray,stream1:chararray,grade:float,state:chararray,city:chararray);
+studentwithrank = rank studentwitheader;
+studentwithoutheader = filter studentwithrank by rank_studentwitheader>1;
+faillist = filter studentwithoutheader by grade <5;
+studentcountgrp = group faillist all;
+faillistcount = foreach studentcountgrp generate 'Student count with grader less then 5', COUNT(studentcountgrp);
+store faillistcount into 'faillistcount';
+studentfromalaska= filter studentwithoutheader by UPPER(state)=='ALASKA';
+studentnamefromalaska = foreach studentfromalaska generate name;
+store studentnamefromalaska into 'studentfromalaska';
+govclgalabama= filter studentwithoutheader by ((UPPER(col_undertaken)== 'GOVERENMENT') AND (UPPER(state)=='ALABAMA'));
+clgname = foreach govclgalabama generate name;
+distinctclg = DISTINCT clgname;
+distinctclggrp = group distinctclg all;
+clgcount= foreach distinctclggrp generate COUNT(distinctclg);
+store clgcount into 'clgcount';
+studentoregan= filter studentwithoutheader by ((UPPER(state)== 'OREGON') AND (UPPER(stream1)=='BE'));
+studentname = foreach studentoregan generate name;
+studentfromoregan = distinct studentname;
+store studentfromoregan into 'oreganstudent'
+
+
+
